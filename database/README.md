@@ -1,6 +1,5 @@
 # Database
 
-Provide a file for database import with prepared mock data for:
-* users
-* folders
-* notes
+Run 'npm run seed' to initialize the database with mock data. 
+Be warned that this will drop the current database!
+
