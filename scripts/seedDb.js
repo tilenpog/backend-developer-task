@@ -21,7 +21,8 @@ createUsers = () => {
         { name: 'admin', username: 'admin', password: hashPassword('admin') },
         { name: 'Jane', username: 'user', password: hashPassword('user') },
         { name: 'John', username: 'john1990', password: hashPassword('verySecure')},
-        { name: 'John', username: 'emptyFolders', password: hashPassword('password') },
+        { name: 'Michael', username: 'emptyFolders', password: hashPassword('password') },
+        { name: 'Alice', username: 'noFolders', password: hashPassword('password') },
     ]);
 }
 

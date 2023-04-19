@@ -1,12 +1,13 @@
 const express = require('express');
 const asyncHandler = require("express-async-handler");
-const { RequiredAuth, OptionalAuth } = require("./middleware/authorization");
+const { RequireAuth, OptionalAuth } = require("./middleware/authorization");
 
 const folderRouter = require("./routes/folderRouter")
 const userRouter = require("./routes/userRouter")
 
 //App setup
 const app = express();
+app.use(express.json());
 
 //Routes
 app.use("/folders", folderRouter);
@@ -19,7 +20,7 @@ app.get('/', (req, res) => {
 
 //Authorization test endpoints
 //TODO: Remove before submitting
-app.get("/requiredAuth", RequiredAuth, asyncHandler(async (req, res) => {
+app.get("/requiredAuth", RequireAuth, asyncHandler(async (req, res) => {
     res.json(req.authInfo);
   }));
 

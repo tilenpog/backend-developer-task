@@ -1,6 +1,5 @@
 const router = require("express").Router();
 const asyncHandler = require("express-async-handler");
-const { RequiredAuth, OptionalAuth } = require("../middleware/authorization");
 const { getAllUsers } = require("../controllers/usercontroller");
 
 router.get("/", asyncHandler(async (req, res) => {

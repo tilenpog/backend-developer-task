@@ -13,7 +13,7 @@ Authorization: Basic admin:wrongPass
 GET http://localhost:3000/requiredAuth
 Authorization: Basic admin:admin
 
-###Auth test REQUIRED
+###Auth test REQUIRED invalid password
 GET http://localhost:3000/requiredAuth
 Authorization: Basic admin:wrongPass
 

@@ -1,0 +1,40 @@
+###Get all folders no auth
+GET http://localhost:3000/folders/
+
+###Get all folders
+GET http://localhost:3000/folders/
+Authorization: Basic admin:admin
+
+###Get all folders invalid owner
+GET http://localhost:3000/folders/
+Authorization: Basic noFolders:password
+
+###Get folder by id
+GET http://localhost:3000/folders/1
+Authorization: Basic admin:admin
+
+###Get folder by id invalid owner
+GET http://localhost:3000/folders/1
+Authorization: Basic user:user
+
+###Create folder
+POST http://localhost:3000/folders/
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "name": "New Folder"
+}
+
+###Update folder
+PUT http://localhost:3000/folders/1
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "name": "Updated Folder"
+}
+
+###Delete folder
+DELETE http://localhost:3000/folders/1
+Authorization: Basic admin:admin
