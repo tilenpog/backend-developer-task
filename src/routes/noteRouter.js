@@ -11,8 +11,13 @@ router.get(
   OptionalAuth,
   asyncHandler(async (req, res) => {
     const userId = req.authInfo.isAuthorized ? req.authInfo.user.id : -1;
-    const notes = await NoteController.getNotes(userId);
-    return ApiResponses.SUCCESS(res, notes);
+    const paginationData = {
+      page: parseInt(req.query.page) || 1,
+      pageSize: parseInt(req.query.pageSize) || 10,
+    };
+
+    const result = await NoteController.getNotes(userId, paginationData);
+    return ApiResponses.SUCCESS(res, result);
   })
 );
 

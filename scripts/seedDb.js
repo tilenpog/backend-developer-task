@@ -55,6 +55,8 @@ createNotes = () => {
     { name: "Note 2", type: "text", visibility: "public", FolderId: 1 },
     { name: "Note 3", type: "text", visibility: "private", FolderId: 1 },
     { name: "Note 4", type: "text", visibility: "private", FolderId: 4 },
+    { name: "Note 5", type: "text", visibility: "public", FolderId: 4 },
+    { name: "Note 6", type: "list", visibility: "public", FolderId: 5 },
   ]);
 };
 
@@ -62,6 +64,7 @@ createNoteListItems = () => {
   return NoteListItem.bulkCreate([
     { body: "This is a note list item", NoteId: 1 },
     { body: "This is another note list item", NoteId: 1 },
+    { body: "Lorem ipsum...", NoteId: 6 },
   ]);
 };
 
@@ -69,6 +72,8 @@ createNoteTextItems = () => {
   return NoteTextItem.bulkCreate([
     { body: "This is a note text item", NoteId: 2 },
     { body: "I am a text note!", NoteId: 3 },
+    { body: "I am a text note!", NoteId: 4 },
+    { body: "I am a text note!", NoteId: 5 },
   ]);
 };
 

@@ -1,9 +1,17 @@
 const { Note, Folder, NoteListItem, NoteTextItem } = require("../models/model");
 
-const getNotes = (userId) => {
-  return Note.scope({ method: ["canView", userId] }).findAll({
-    include: [NoteListItem, NoteTextItem],
+const getNotes = async (userId, paginationData) => {
+  const { page, pageSize } = paginationData;
+  const offset = (page - 1) * pageSize;
+
+  const result = await Note.scope({
+    method: ["canView", userId],
+  }).findAndCountAll({
+    offset: offset,
+    limit: pageSize,
   });
+
+  return { allNotesCount: result.count, notes: result.rows };
 };
 
 const getNoteById = (userId, noteId) => {

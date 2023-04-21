@@ -13,7 +13,8 @@ describe("GET /notes", () => {
       .set("Authorization", "Basic YWRtaW46YWRtaW4="); // 'admin:admin' base64-encoded
 
     expect(res.status).toEqual(200);
-    expect(res.body).toEqual(
+    expect(res.body.allNotesCount).toEqual(5);
+    expect(res.body.notes).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ name: "Note 1", visibility: "public" }),
         expect.objectContaining({ name: "Note 2", visibility: "public" }),
@@ -22,19 +23,28 @@ describe("GET /notes", () => {
     );
   });
 
+  it("should paginate notes", async () => {
+    const res = await request(app)
+      .get("/notes?page=2&pageSize=2")
+      .set("Authorization", "Basic YWRtaW46YWRtaW4="); // 'admin:admin' base64-encoded
+
+    expect(res.status).toEqual(200);
+    expect(res.body.allNotesCount).toEqual(5);
+    expect(res.body.notes).toHaveLength(2);
+    expect(res.body.notes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: "Note 3", visibility: "private" }),
+        expect.objectContaining({ name: "Note 5", visibility: "public" }),
+      ])
+    );
+  });
+
   it("should return only public notes when unauthorized", async () => {
     const res = await request(app).get("/notes");
 
     expect(res.status).toEqual(200);
-    expect(res.body).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ name: "Note 1", visibility: "public" }),
-        expect.objectContaining({ name: "Note 2", visibility: "public" }),
-      ])
-    );
-    expect(
-      res.body.filter((note) => note.visibility === "private")
-    ).toHaveLength(0);
+    expect(res.body.allNotesCount).toEqual(4);
+    expect(res.body.notes.every((note) => note.visibility === "public"));
   });
 
   it("should return note by id", async () => {
@@ -207,6 +217,7 @@ describe("DELETE /notes", () => {
       .get("/notes")
       .set("Authorization", "Basic YWRtaW46YWRtaW4="); // 'admin:admin' base64-encoded
 
-    expect(res.body.length).toEqual(0);
+    expect(res.body.notes.every((note) => note.Folder.UserId !== 1));
+    expect(res.body.allNotesCount).toEqual(2);
   });
 });
