@@ -1,14 +1,19 @@
+const Sequelize = require("sequelize");
 const { Note, Folder, NoteListItem, NoteTextItem } = require("../models/model");
 
-const getNotes = async (userId, paginationData) => {
+const getNotes = async (userId, paginationData, orderData) => {
   const { page, pageSize } = paginationData;
   const offset = (page - 1) * pageSize;
+
+  const { sort, order } = orderData;
+  const ordering = [[sort, order]];
 
   const result = await Note.scope({
     method: ["canView", userId],
   }).findAndCountAll({
     offset: offset,
     limit: pageSize,
+    order: ordering,
   });
 
   return { allNotesCount: result.count, notes: result.rows };

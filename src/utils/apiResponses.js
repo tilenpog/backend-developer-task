@@ -1,7 +1,8 @@
 const NO_CONTENT = (res) => res.status(204).json({ message: "No content!" });
 const SUCCESS = (res, data) => res.status(200).json(data);
 const CREATED = (res, data) => res.status(201).json(data);
-const BAD_REQUEST = (res) => res.status(400).json({ message: "Bad request!" });
+const BAD_REQUEST = (res, msg = "Bad request!") =>
+  res.status(400).json({ message: msg });
 const UNAUTHORIZED = (res) =>
   res.status(401).json({ message: "Unauthorized!" });
 const FORBIDDEN = (res) => res.status(403).json({ message: "Forbidden!" });

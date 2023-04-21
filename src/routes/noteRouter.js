@@ -11,12 +11,39 @@ router.get(
   OptionalAuth,
   asyncHandler(async (req, res) => {
     const userId = req.authInfo.isAuthorized ? req.authInfo.user.id : -1;
+
     const paginationData = {
       page: parseInt(req.query.page) || 1,
       pageSize: parseInt(req.query.pageSize) || 10,
     };
 
-    const result = await NoteController.getNotes(userId, paginationData);
+    const orderData = { sort: "id", order: "ASC" };
+    const supportedSortBy = [
+      "id",
+      "name",
+      "visibility",
+      "updatedAt",
+      "createdAt",
+    ];
+    const supportedOrderBy = ["ASC", "DESC", "asc", "desc"];
+    if (req.query.sort) {
+      if (!supportedSortBy.includes(req.query.sort)) {
+        return ApiResponses.BAD_REQUEST(res, "Invalid sortBy value");
+      }
+      orderData.sort = req.query.sort;
+    }
+    if (req.query.order) {
+      if (!supportedOrderBy.includes(req.query.order)) {
+        return ApiResponses.BAD_REQUEST(res, "Invalid orderBy value");
+      }
+      orderData.order = req.query.order.toUpperCase();
+    }
+
+    const result = await NoteController.getNotes(
+      userId,
+      paginationData,
+      orderData
+    );
     return ApiResponses.SUCCESS(res, result);
   })
 );

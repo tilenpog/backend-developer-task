@@ -6,6 +6,11 @@ Authorization: Basic admin:admin
 GET http://localhost:3000/notes/?page=1&pageSize=2
 Authorization: Basic admin:admin
 
+###Get notes sorted
+GET http://localhost:3000/notes/?sort=id&order=desc
+Authorization: Basic admin:admin
+
+
 ###Get note by id
 GET http://localhost:3000/notes/1
 Authorization: Basic admin:admin

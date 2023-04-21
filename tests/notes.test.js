@@ -39,6 +39,24 @@ describe("GET /notes", () => {
     );
   });
 
+  it("should sort notes", async () => {
+    let res = await request(app)
+      .get("/notes?sort=name&order=desc")
+      .set("Authorization", "Basic YWRtaW46YWRtaW4="); // 'admin:admin' base64-encoded
+
+    expect(res.status).toEqual(200);
+    expect(res.body.notes[0].name).toEqual("Note 6");
+    expect(res.body.notes[1].name).toEqual("Note 5");
+
+    res = await request(app)
+      .get("/notes?sort=name&order=asc")
+      .set("Authorization", "Basic YWRtaW46YWRtaW4="); // 'admin:admin' base64-encoded
+
+    expect(res.status).toEqual(200);
+    expect(res.body.notes[0].name).toEqual("Note 1");
+    expect(res.body.notes[1].name).toEqual("Note 2");
+  });
+
   it("should return only public notes when unauthorized", async () => {
     const res = await request(app).get("/notes");
 
