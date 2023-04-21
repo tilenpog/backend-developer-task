@@ -99,16 +99,16 @@ NoteTextItem.init(
 );
 
 //Define relationships between models
-User.hasMany(Folder);
+User.hasMany(Folder, { onDelete: 'cascade' });
 Folder.belongsTo(User);
 
-Folder.hasMany(Note);
+Folder.hasMany(Note, { onDelete: 'cascade' });
 Note.belongsTo(Folder);
 
-Note.hasMany(NoteListItem);
+Note.hasMany(NoteListItem, { onDelete: 'cascade' });
 NoteListItem.belongsTo(Note);
 
-Note.hasOne(NoteTextItem);
+Note.hasOne(NoteTextItem, { onDelete: 'cascade' });
 NoteTextItem.belongsTo(Note);
 
 // Note.addScope("canView", {

@@ -49,16 +49,29 @@ const updateNote = async (noteId, data, userId) => {
     if (!note || note.Folder.UserId !== userId) {
         return false;
     }
+    //TODO: check if folder is okay, owned by user
+    const { items, ...noteData } = data;
 
-    await note.update(data);
+    await note.update(noteData);
 
-    if (listItems && Array.isArray(listItems)) {
-        
-        // Map the list items to an array of objects that can be passed to setNoteListItems
-        const listItemValues = listItems.map((item) => ({ value: item }));
-
-        // Use the setNoteListItems method to update the note's list items
-        await note.setNoteListItems(listItemValues);
+    if (note.type === 'list') { 
+        await NoteListItem.destroy({ where: { NoteId: noteId } });
+        if (items) {
+            await Promise.all(
+                items.map(async (item) => {
+                    await NoteListItem.create({ body: item.body, NoteId: noteId });
+                })
+            );
+        }
+    } else if (note.type === 'text') {
+        await NoteTextItem.destroy({ where: { NoteId: noteId } });
+        if (items) {
+            await Promise.all(
+                items.map(async (item) => {
+                    await NoteTextItem.create({ body: item.body, NoteId: noteId });
+                })
+            );
+        }
     }
 
     return true;
@@ -72,7 +85,7 @@ const deleteNote = (noteId, userId) => {
           return;
         }
     
-        await note.destroy({ include: [NoteListItem, NoteTextItem], transaction: t });
+        await note.destroy({ transaction: t });
     });
 };
 
@@ -81,7 +94,7 @@ const deleteAllNotes = (userId) => {
         const userFolders = await Folder.findAll({ where: { UserId: userId }, transaction: t });
         const folderIds = userFolders.map((folder) => folder.id);
 
-        await Note.destroy({ where: { FolderId: folderIds }, include: [NoteListItem, NoteTextItem], transaction: t });
+        await Note.destroy({ where: { FolderId: folderIds }, transaction: t });
     });
 };
 

@@ -46,8 +46,8 @@ router.post("/", RequireAuth, asyncHandler(async (req, res) => {
 }));
 
 router.put("/:id", RequireAuth, asyncHandler(async (req, res) => {
-  const noteId = req.params.noteId;
-  const userId = req.user.id;
+  const noteId = req.params.id;
+  const userId = req.authInfo.user.id;
   //TODO: validate data
   const updateNoteData = req.body;
 

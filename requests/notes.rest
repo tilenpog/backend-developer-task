@@ -53,3 +53,23 @@ Authorization: Basic admin:admin
 
 ###Get note list items
 GET http://localhost:3000/notes/noteitems
+
+###Get note by id
+GET http://localhost:3000/notes/1
+Authorization: Basic admin:admin
+
+###Update note
+PUT http://localhost:3000/notes/1
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+    "title": "Note title",
+    "type": "list",
+    "visibility": "public",
+    "folderId": 2,
+    "items": [
+        {"body": "body 1"},
+        {"body": "body 2"}
+    ]
+}
