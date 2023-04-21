@@ -7,7 +7,7 @@
   "scripts": {
     "start": "nodemon ./src/server.js",
     "seed": "node -e 'require(\"./scripts/seedDb\").seedDb(true)'",
-    "test": "NODE_ENV=test jest"
+    "test": "NODE_ENV=test jest --verbose"
   },
   "dependencies": {
     "bcrypt": "^5.1.0",

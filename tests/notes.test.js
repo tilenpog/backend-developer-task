@@ -2,79 +2,117 @@ const request = require('supertest');
 const app = require('../src/app');
 const { seedDb } = require('../scripts/seedDb');
 
-describe('GET /folders', () => {
+describe('GET /notes', () => {
     beforeAll(async () => {
         await seedDb();
     });
 
-    it('should return all folders', async () => {
+    it('should return all notes', async () => {
         const res = await request(app)
-        .get('/folders')
+        .get('/notes')
         .set('Authorization', 'Basic YWRtaW46YWRtaW4='); // 'admin:admin' base64-encoded
 
         expect(res.status).toEqual(200);
         expect(res.body).toEqual(
             expect.arrayContaining([
-              expect.objectContaining({name: 'Folder 1', UserId: 1 }),
-              expect.objectContaining({name: 'Folder 2', UserId: 1 }),
+              expect.objectContaining({name: 'Note 1', visibility: 'public'}),
+              expect.objectContaining({name: 'Note 2', visibility: 'public'}),
+              expect.objectContaining({name: 'Note 3', visibility: 'private'}),
             ])
           );
     });
 
-    it('should require auth', async () => {
+    it('should return only public notes when unauthorized', async () => {
         const res = await request(app)
-        .get('/folders')
+        .get('/notes');
 
-        expect(res.status).toEqual(401);
+        expect(res.status).toEqual(200);
+        expect(res.body).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({name: 'Note 1', visibility: 'public'}),
+              expect.objectContaining({name: 'Note 2', visibility: 'public'}),
+            ])
+        );
+        expect(res.body.filter(note => note.visibility === 'private')).toHaveLength(0);
     });
 
-    it('should return folder by id', async () => {
+    it('should return note by id', async () => {
         const res = await request(app)
-        .get('/folders/1')
+        .get('/notes/1')
         .set('Authorization', 'Basic YWRtaW46YWRtaW4='); // 'admin:admin' base64-encoded
 
         expect(res.status).toEqual(200);
-        expect(res.body).toEqual(expect.objectContaining({name: 'Folder 1', UserId: 1 }));
+        expect(res.body).toEqual(expect.objectContaining({name: 'Note 1', visibility: 'public'}));
     });
 
     it ('should return 404 if folder not found', async () => {
         const res = await request(app)
-        .get('/folders/4')
+        .get('/notes/404')
+        .set('Authorization', 'Basic YWRtaW46YWRtaW4='); // 'admin:admin' base64-encoded
+
+        expect(res.status).toEqual(404);
+    });
+
+    it ('should return 404 if note is private and user is not authorized or is not owner', async () => {
+        let res = await request(app)
+        .get('/notes/3');
+
+        expect(res.status).toEqual(404);
+
+        res = await request(app)
+        .get('/notes/4')
         .set('Authorization', 'Basic YWRtaW46YWRtaW4='); // 'admin:admin' base64-encoded
 
         expect(res.status).toEqual(404);
     });
 });
 
-describe('CREATE /folders', () => {
+describe('CREATE /notes', () => {
+    let createNoteObject = {
+        name: 'Note title',
+        type: 'list',
+        visibility: 'public',
+        folderId: 2,
+        items: [
+            {body: 'body 1'},
+            {body: 'body 2'}
+        ]
+    }
+
     beforeEach(async () => {
         await seedDb();
     });
 
     it('should require auth', async () => {
         const res = await request(app)
-        .post('/folders')
-        .send({ name: 'New Folder', UserId: 1 });
+        .post('/notes')
+        .send(createNoteObject);
 
         expect(res.status).toEqual(401);
     });
 
-    it('should create a new folder', async () => {
-        const res = await request(app)
-        .post('/folders')
+    it('should create a new note', async () => {
+        let res = await request(app)
+        .post('/notes')
         .set('Authorization', 'Basic YWRtaW46YWRtaW4=') // 'admin:admin' base64-encoded
-        .send({ name: 'New Folder'});
+        .send(createNoteObject);
 
         expect(res.status).toEqual(201);
-        expect(res.body).toEqual(expect.objectContaining({name: 'New Folder', UserId: 1 }));
+        
+        const noteId = res.body;
+        res = await request(app)
+        .get(`/notes/${noteId}`)
+        .set('Authorization', 'Basic YWRtaW46YWRtaW4=') // 'admin:admin' base64-encoded
+
+        expect(res.body).toEqual(expect.objectContaining({name: createNoteObject.name}));
     });
 
-    //TODO
-    // it('should return 400 if name is missing', async () => {
+    //TODO data validation
+    // it('should return 400 if data is missing', async () => {
     //     const res = await request(app)
-    //     .post('/folders')
+    //     .post('/notes')
     //     .set('Authorization', 'Basic YWRtaW46YWRtaW4=') // 'admin:admin' base64-encoded
-    //     .send({ title: 'New Folder'});
+    //     .send({ name: 'New note'});
 
     //     expect(res.status).toEqual(400);
     // });
@@ -87,91 +125,91 @@ describe('UPDATE /folders', () => {
 
     it('should require auth', async () => {
         const res = await request(app)
-        .post('/folders')
-        .send({ name: 'New Folder', UserId: 1 });
+        .put('/notes/1')
+        .send({ name: 'New Folder'});
 
         expect(res.status).toEqual(401);
     });
 
-    it('should return 400 if folder not found', async () => {
+    it('should return 404 if note not found', async () => {
         const res = await request(app)
-        .put('/folders/4')
+        .put('/note/404')
         .set('Authorization', 'Basic YWRtaW46YWRtaW4=') // 'admin:admin' base64-encoded
-        .send({ name: 'updated folder'});
+        .send({ name: 'updated note'});
 
-        expect(res.status).toEqual(400);
+        expect(res.status).toEqual(404);
     });
 
-    it('should update folder', async () => {
+    it('should update note', async () => {
         let res = await request(app)
-        .put('/folders/1')
+        .put('/notes/1')
         .set('Authorization', 'Basic YWRtaW46YWRtaW4=') // 'admin:admin' base64-encoded
-        .send({ name: 'updated folder'});
+        .send({ name: 'updated note'});
 
         expect(res.status).toEqual(204);
 
         res = await request(app)
-        .get('/folders/1')
+        .get('/notes/1')
         .set('Authorization', 'Basic YWRtaW46YWRtaW4=') // 'admin:admin' base64-encoded
 
-        expect(res.body).toEqual(expect.objectContaining({name: 'updated folder', UserId: 1 }));
+        expect(res.body).toEqual(expect.objectContaining({name: 'updated note'}));
     });
 });
 
-describe('DELETE /folders', () => {
+describe('DELETE /notes', () => {
     beforeEach(async () => {
         await seedDb();
     });
 
     it('should require auth', async () => {
         let res = await request(app)
-        .delete('/folders');
+        .delete('/notes/');
 
         expect(res.status).toEqual(401);
 
          res = await request(app)
-        .delete('/folders/1');
+        .delete('/notes/1');
 
         expect(res.status).toEqual(401);
     });
 
-    it('should not delete other users folders', async () => {
+    it('should not delete other users notes', async () => {
         let res = await request(app)
-        .delete('/folders/4')
+        .delete('/notes/4')
         .set('Authorization', 'Basic YWRtaW46YWRtaW4='); // 'admin:admin' base64-encoded
 
         expect(res.status).toEqual(204);
 
         res = await request(app)
-        .get('/folders/4')
+        .get('/notes/4')
         .set('Authorization', 'Basic dXNlcjp1c2Vy='); // 'user:user' base64-encoded
 
         expect(res.status).toEqual(200);
     });
 
-    it('should delete folder', async () => {
+    it('should delete note', async () => {
         let res = await request(app)
-        .delete('/folders/1')
+        .delete('/notes/1')
         .set('Authorization', 'Basic YWRtaW46YWRtaW4='); // 'admin:admin' base64-encoded
 
         expect(res.status).toEqual(204);
 
         res = await request(app)
-        .get('/folders/1')
+        .get('/notes/1')
         .set('Authorization', 'Basic YWRtaW46YWRtaW4=') // 'admin:admin' base64-encoded
 
         expect(res.status).toEqual(404);
     });
 
-    it ('should delete all folders', async () => {
+    it ('should delete all notes', async () => {
         let res = await request(app)
-        .delete('/folders')
+        .delete('/notes')
         .set('Authorization', 'Basic YWRtaW46YWRtaW4='); // 'admin:admin' base64-encoded
 
         expect(res.status).toEqual(204);
 
         res = await request(app)
-        .get('/folders')
+        .get('/notes')
         .set('Authorization', 'Basic YWRtaW46YWRtaW4='); // 'admin:admin' base64-encoded
 
         expect(res.body.length).toEqual(0);

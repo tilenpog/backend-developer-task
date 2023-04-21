@@ -20,9 +20,6 @@ createUsers = () => {
     return User.bulkCreate([
         { name: 'admin', username: 'admin', password: hashPassword('admin') },
         { name: 'Jane', username: 'user', password: hashPassword('user') },
-        { name: 'John', username: 'john1990', password: hashPassword('verySecure')},
-        { name: 'Michael', username: 'emptyFolders', password: hashPassword('password') },
-        { name: 'Alice', username: 'noFolders', password: hashPassword('password') },
     ]);
 }
 
@@ -44,7 +41,8 @@ createNotes = () => {
     return Note.bulkCreate([
         { name: 'Note 1', type: 'list', visibility: 'public', FolderId: 1 },
         { name: 'Note 2', type: 'text', visibility: 'public', FolderId: 1 },
-        { name: 'Note 2', type: 'text', visibility: 'private', FolderId: 1 },
+        { name: 'Note 3', type: 'text', visibility: 'private', FolderId: 1 },
+        { name: 'Note 4', type: 'text', visibility: 'private', FolderId: 4 },
     ]);
 }
 

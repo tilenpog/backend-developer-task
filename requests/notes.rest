@@ -9,8 +9,10 @@ Authorization: Basic admin:admin
 GET http://localhost:3000/notes/
 Authorization: Basic user:user
 
+
 ###Get note by id
-GET http://localhost:3000/notes/1
+GET http://localhost:3000/notes/4
+Authorization: Basic admin:admin
 
 ###Create list note
 POST http://localhost:3000/notes/
@@ -34,7 +36,7 @@ Authorization: Basic admin:admin
 Content-Type: application/json
 
 {
-    "title": "Note title",
+    "name": "Note title",
     "type": "text",
     "visibility": "public",
     "folderId": 1,

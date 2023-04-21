@@ -4,7 +4,7 @@ const getAllNotes = (userId) => {
     return Note.scope({ method: ['canView', userId] }).findAll({include: [NoteListItem, NoteTextItem]});
 };
 
-const getNoteById = (noteId, userId) => {
+const getNoteById = (userId, noteId) => {
     return Note.scope({ method: ['canView', userId] }).findByPk(noteId, { include: [NoteListItem, NoteTextItem] });
 };
 
