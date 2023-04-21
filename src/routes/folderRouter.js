@@ -2,72 +2,91 @@ const router = require("express").Router();
 const asyncHandler = require("express-async-handler");
 const ApiResponses = require("../utils/apiResponses");
 const { RequireAuth } = require("../middleware/authorization");
-const { getAllFolders, getFolder, createFolder, updateFolder, deleteFolder, deleteAllFolders } = require("../controllers/folderController");
+const FolderController = require("../controllers/folderController");
 const { getNotesInFolder } = require("../controllers/noteController");
 
-router.get("/", RequireAuth, asyncHandler(async (req, res) => {
+router.get(
+  "/",
+  RequireAuth,
+  asyncHandler(async (req, res) => {
     const userId = req.authInfo.user.id;
 
-    const folders = await getAllFolders(userId);
+    const folders = await FolderController.getAllFolders(userId);
 
     return ApiResponses.SUCCESS(res, folders);
   })
 );
 
-router.get("/:id", RequireAuth, asyncHandler(async (req, res) => {
-  const userId = req.authInfo.user.id;
-  const folderId = req.params.id;
+router.get(
+  "/:id",
+  RequireAuth,
+  asyncHandler(async (req, res) => {
+    const userId = req.authInfo.user.id;
+    const folderId = req.params.id;
 
-  const folder = await getFolder(folderId, userId);
+    const folder = await FolderController.getFolder(folderId, userId);
 
-  if (!folder) return ApiResponses.NOT_FOUND(res);
-  return ApiResponses.SUCCESS(res, folder);
-}));
+    if (!folder) return ApiResponses.NOT_FOUND(res);
+    return ApiResponses.SUCCESS(res, folder);
+  })
+);
 
-router.get("/:id/notes", RequireAuth, asyncHandler(async (req, res) => {
-  const userId = req.authInfo.user.id;
-  const folderId = req.params.id;
+router.post(
+  "/",
+  RequireAuth,
+  asyncHandler(async (req, res) => {
+    const createData = req.body;
+    createData.UserId = req.authInfo.user.id;
+    //TODO: validate createData
 
-  const notes = await getNotesInFolder(folderId, userId);
-  return ApiResponses.SUCCESS(res, notes);
-}));
+    const folder = await FolderController.createFolder(createData);
 
-router.post("/", RequireAuth, asyncHandler(async (req, res) => {
-  const createData = req.body;
-  createData.UserId = req.authInfo.user.id;
-  //TODO: validate createData
+    return ApiResponses.CREATED(res, folder);
+  })
+);
 
-  const folder = await createFolder(createData);
+router.put(
+  "/:id",
+  RequireAuth,
+  asyncHandler(async (req, res) => {
+    const userId = req.authInfo.user.id;
+    const folderId = req.params.id;
+    const updateData = req.body;
+    //TODO: validate updateData
 
-  return ApiResponses.CREATED(res, folder);
-}));
+    const [changedRows] = await FolderController.updateFolder(
+      folderId,
+      updateData,
+      userId
+    );
 
-router.put("/:id", RequireAuth, asyncHandler(async (req, res) => {
-  const userId = req.authInfo.user.id;
-  const folderId = req.params.id;
-  const updateData = req.body;
+    if (changedRows === 0) return ApiResponses.BAD_REQUEST(res);
+    return ApiResponses.NO_CONTENT(res);
+  })
+);
 
-  //TODO: validate updateData
-  const [changedRows] = await updateFolder(folderId, updateData, userId);
+router.delete(
+  "/:id",
+  RequireAuth,
+  asyncHandler(async (req, res) => {
+    const userId = req.authInfo.user.id;
+    const folderId = req.params.id;
 
-  if (changedRows === 0) return ApiResponses.BAD_REQUEST(res);
-  return ApiResponses.NO_CONTENT(res);
-}));
+    await FolderController.deleteFolder(folderId, userId);
 
-router.delete("/:id", RequireAuth, asyncHandler(async (req, res) => {
-  const userId = req.authInfo.user.id;
-  const folderId = req.params.id;
+    return ApiResponses.NO_CONTENT(res);
+  })
+);
 
-  await deleteFolder(folderId, userId);
-  
-  return ApiResponses.NO_CONTENT(res);
-}));
+router.delete(
+  "/",
+  RequireAuth,
+  asyncHandler(async (req, res) => {
+    const userId = req.authInfo.user.id;
+    await FolderController.deleteAllFolders(userId);
 
-router.delete("/", RequireAuth, asyncHandler(async (req, res) => {
-  const userId = req.authInfo.user.id;
-  await deleteAllFolders(userId);
-
-  return ApiResponses.NO_CONTENT(res);
-}));
+    return ApiResponses.NO_CONTENT(res);
+  })
+);
 
 module.exports = router;

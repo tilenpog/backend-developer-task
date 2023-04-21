@@ -58,15 +58,18 @@ Note.init(
     sequelize,
     modelName: "Note",
     scopes: {
-
       canView(userId) {
         return {
-          include: { model: Folder},
-          where: { [Sequelize.Op.or]: [{ visibility: "public" }, { "$Folder.UserId$": userId }]}
-        }
-      }
-
-    }
+          include: { model: Folder },
+          where: {
+            [Sequelize.Op.or]: [
+              { visibility: "public" },
+              { "$Folder.UserId$": userId },
+            ],
+          },
+        };
+      },
+    },
   }
 );
 
@@ -99,16 +102,16 @@ NoteTextItem.init(
 );
 
 //Define relationships between models
-User.hasMany(Folder, { onDelete: 'cascade' });
+User.hasMany(Folder, { onDelete: "cascade" });
 Folder.belongsTo(User);
 
-Folder.hasMany(Note, { onDelete: 'cascade' });
+Folder.hasMany(Note, { onDelete: "cascade" });
 Note.belongsTo(Folder);
 
-Note.hasMany(NoteListItem, { onDelete: 'cascade' });
+Note.hasMany(NoteListItem, { onDelete: "cascade" });
 NoteListItem.belongsTo(Note);
 
-Note.hasOne(NoteTextItem, { onDelete: 'cascade' });
+Note.hasOne(NoteTextItem, { onDelete: "cascade" });
 NoteTextItem.belongsTo(Note);
 
 // Note.addScope("canView", {
@@ -124,11 +127,10 @@ NoteTextItem.belongsTo(Note);
 //   },
 // });
 
-
 module.exports = {
   User,
   Folder,
   Note,
   NoteListItem,
-  NoteTextItem
+  NoteTextItem,
 };
