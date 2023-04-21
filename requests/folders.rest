@@ -38,3 +38,7 @@ Content-Type: application/json
 ###Delete folder
 DELETE http://localhost:3000/folders/1
 Authorization: Basic admin:admin
+
+###Delete all folders
+DELETE http://localhost:3000/folders/
+Authorization: Basic admin:admin

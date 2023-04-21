@@ -4,7 +4,7 @@ const sequelizeConfig = () => {
     const config = {
       dialect: "sqlite",
       storage: "./database.sqlite3",
-      logging: false,
+      logging: true,
     };
   
     return config;

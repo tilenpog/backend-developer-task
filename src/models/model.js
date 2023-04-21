@@ -49,10 +49,6 @@ Note.init(
       type: Sequelize.ENUM("text", "list"), //TODO create an actual enum
       defaultValue: "text",
     },
-    body: {
-      type: Sequelize.TEXT,
-      defaultValue: "",
-    },
     visibility: {
       type: Sequelize.ENUM("public", "private"), //TODO create an actual enum
       defaultValue: "private",
@@ -61,11 +57,21 @@ Note.init(
   {
     sequelize,
     modelName: "Note",
+    scopes: {
+
+      canView(userId) {
+        return {
+          include: { model: Folder},
+          where: { [Sequelize.Op.or]: [{ visibility: "public" }, { "$Folder.UserId$": userId }]}
+        }
+      }
+
+    }
   }
 );
 
-class NoteItem extends Sequelize.Model {}
-NoteItem.init(
+class NoteListItem extends Sequelize.Model {}
+NoteListItem.init(
   {
     body: {
       type: Sequelize.TEXT,
@@ -74,7 +80,21 @@ NoteItem.init(
   },
   {
     sequelize,
-    modelName: "NoteItem",
+    modelName: "NoteListItem",
+  }
+);
+
+class NoteTextItem extends Sequelize.Model {}
+NoteTextItem.init(
+  {
+    body: {
+      type: Sequelize.TEXT,
+      defaultValue: "",
+    },
+  },
+  {
+    sequelize,
+    modelName: "NoteTextItem",
   }
 );
 
@@ -85,12 +105,30 @@ Folder.belongsTo(User);
 Folder.hasMany(Note);
 Note.belongsTo(Folder);
 
-Note.hasMany(NoteItem);
-NoteItem.belongsTo(Note);
+Note.hasMany(NoteListItem);
+NoteListItem.belongsTo(Note);
+
+Note.hasOne(NoteTextItem);
+NoteTextItem.belongsTo(Note);
+
+// Note.addScope("canView", {
+//   include: {
+//     model: Folder,
+//     where: { UserId: Sequelize.col("Note.UserId") },
+//   },
+//   where: {
+//     [Sequelize.Op.or]: [
+//       { visibility: "public" },
+//       { "$Folder.UserId$": Sequelize.col("userId") },
+//     ],
+//   },
+// });
+
 
 module.exports = {
   User,
   Folder,
   Note,
-  NoteItem,
+  NoteListItem,
+  NoteTextItem
 };

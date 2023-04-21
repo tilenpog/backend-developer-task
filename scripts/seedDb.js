@@ -1,5 +1,5 @@
 const bcrypt = require("bcrypt")
-const { User, Folder, Note, NoteItem } = require('../src/models/model');
+const { User, Folder, Note, NoteListItem, NoteTextItem } = require('../src/models/model');
 
 seedDb();
 
@@ -8,9 +8,10 @@ async function seedDb() {
     await User.sync({ force: true });
     await Folder.sync({ force: true });
     await Note.sync({ force: true });
-    await NoteItem.sync({ force: true });    
+    await NoteListItem.sync({ force: true });    
+    await NoteTextItem.sync({ force: true });    
 
-    await Promise.all([createUsers(), createFolders(), createNotes(), createNoteItems()]);
+    await Promise.all([createUsers(), createFolders(), createNotes(), createNoteListItems(), createNoteTextItems()]);
 
     console.log('Database seeded!');
 }
@@ -44,16 +45,24 @@ createFolders = () => {
 createNotes = () => {
     console.log('Creating notes...');
     return Note.bulkCreate([
-        { name: 'Note 1', type: 'list', body: 'This is a list note', visibility: 'public', FolderId: 1 },
-        { name: 'Note 2', type: 'text', body: 'This is a note', visibility: 'public', FolderId: 1 },
-        { name: 'Note 2', type: 'text', body: 'This is a private note', visibility: 'private', FolderId: 1 },
+        { name: 'Note 1', type: 'list', visibility: 'public', FolderId: 1 },
+        { name: 'Note 2', type: 'text', visibility: 'public', FolderId: 1 },
+        { name: 'Note 2', type: 'text', visibility: 'private', FolderId: 1 },
     ]);
 }
 
-createNoteItems = () => {
-    console.log('Creating note items...');
-    return NoteItem.bulkCreate([
-        { body: 'This is a note item', NoteId: 1 },
-        { body: 'This is a note item', NoteId: 1 },
+createNoteListItems = () => {
+    console.log('Creating note list items...');
+    return NoteListItem.bulkCreate([
+        { body: 'This is a note list item', NoteId: 1 },
+        { body: 'This is another note list item', NoteId: 1 },
+    ]);
+}
+
+createNoteTextItems = () => {
+    console.log('Creating note list items...');
+    return NoteTextItem.bulkCreate([
+        { body: 'This is a note text item', NoteId: 2 },
+        { body: 'I am a text note!', NoteId: 3 },
     ]);
 }
