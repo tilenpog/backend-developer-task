@@ -1,10 +1,10 @@
 const bcrypt = require("bcrypt")
 const { User, Folder, Note, NoteListItem, NoteTextItem } = require('../src/models/model');
 
-seedDb();
+// seedDb(true);
 
-async function seedDb() {
-    console.log('Started seeding database.');
+async function seedDb(loggingEnabled = false) {
+    if (loggingEnabled) console.log('Started seeding database.');
     await User.sync({ force: true });
     await Folder.sync({ force: true });
     await Note.sync({ force: true });
@@ -13,11 +13,10 @@ async function seedDb() {
 
     await Promise.all([createUsers(), createFolders(), createNotes(), createNoteListItems(), createNoteTextItems()]);
 
-    console.log('Database seeded!');
+    if (loggingEnabled) console.log('Database seeded!');
 }
 
 createUsers = () => {
-    console.log('Creating users...');
     return User.bulkCreate([
         { name: 'admin', username: 'admin', password: hashPassword('admin') },
         { name: 'Jane', username: 'user', password: hashPassword('user') },
@@ -32,7 +31,6 @@ hashPassword = (password) => {
 }
 
 createFolders = () => {
-    console.log('Creating folders...');
     return Folder.bulkCreate([
         { name: 'Folder 1', UserId: 1 },
         { name: 'Folder 2', UserId: 1 },
@@ -43,7 +41,6 @@ createFolders = () => {
 }
 
 createNotes = () => {
-    console.log('Creating notes...');
     return Note.bulkCreate([
         { name: 'Note 1', type: 'list', visibility: 'public', FolderId: 1 },
         { name: 'Note 2', type: 'text', visibility: 'public', FolderId: 1 },
@@ -52,7 +49,6 @@ createNotes = () => {
 }
 
 createNoteListItems = () => {
-    console.log('Creating note list items...');
     return NoteListItem.bulkCreate([
         { body: 'This is a note list item', NoteId: 1 },
         { body: 'This is another note list item', NoteId: 1 },
@@ -60,9 +56,10 @@ createNoteListItems = () => {
 }
 
 createNoteTextItems = () => {
-    console.log('Creating note list items...');
     return NoteTextItem.bulkCreate([
         { body: 'This is a note text item', NoteId: 2 },
         { body: 'I am a text note!', NoteId: 3 },
     ]);
 }
+
+module.exports = {seedDb};

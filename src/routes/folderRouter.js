@@ -50,7 +50,7 @@ router.put("/:id", RequireAuth, asyncHandler(async (req, res) => {
   //TODO: validate updateData
   const [changedRows] = await updateFolder(folderId, updateData, userId);
 
-  if (changedRows === 0) return ApiResponses.INTERNAL_SERVER_ERROR(res);
+  if (changedRows === 0) return ApiResponses.BAD_REQUEST(res);
   return ApiResponses.NO_CONTENT(res);
 }));
 
