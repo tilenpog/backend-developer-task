@@ -52,14 +52,10 @@ router.get(
 router.get(
   "/:id",
   OptionalAuth,
+  Validators.ValidateIdQueryParam,
   asyncHandler(async (req, res) => {
     const userId = req.authInfo.isAuthorized ? req.authInfo.user.id : -1;
     const noteId = req.params.id;
-
-    const validCheck = Validators.isNoteIdValid(noteId);
-    if (!validCheck.isValid) {
-      return ApiResponses.BAD_REQUEST(res, validCheck.error);
-    }
 
     const note = await NoteController.getNoteById(userId, noteId);
 
@@ -74,14 +70,10 @@ router.get(
 router.post(
   "/",
   RequireAuth,
+  Validators.ValidateCreateNoteData,
   asyncHandler(async (req, res) => {
     const createNoteData = req.body;
     const userId = req.authInfo.user.id;
-
-    const validCheck = Validators.isCreateNoteDataValid(createNoteData);
-    if (!validCheck.isValid) {
-      return ApiResponses.BAD_REQUEST(res, validCheck.error);
-    }
 
     const userOwnsFolder = await FolderController.userOwnsFolder(
       userId,
@@ -100,20 +92,12 @@ router.post(
 router.put(
   "/:id",
   RequireAuth,
+  Validators.ValidateIdQueryParam,
+  Validators.ValidateUpdateNoteData,
   asyncHandler(async (req, res) => {
     const noteId = req.params.id;
     const userId = req.authInfo.user.id;
     const updateNoteData = req.body;
-
-    let validCheck = Validators.isNoteIdValid(noteId);
-    if (!validCheck.isValid) {
-      return ApiResponses.BAD_REQUEST(res, validCheck.error);
-    }
-    
-    validCheck = Validators.isUpdateNoteDataValid(updateNoteData);
-    if (!validCheck.isValid) {
-      return ApiResponses.BAD_REQUEST(res, validCheck.error);
-    }
 
     const succeeded = await NoteController.updateNote(
       noteId,
@@ -129,6 +113,7 @@ router.put(
 router.delete(
   "/:id",
   RequireAuth,
+  Validators.ValidateIdQueryParam,
   asyncHandler(async (req, res) => {
     const noteId = req.params.id;
     const userId = req.authInfo.user.id;

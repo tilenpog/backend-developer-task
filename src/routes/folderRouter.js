@@ -20,14 +20,10 @@ router.get(
 router.get(
   "/:id",
   RequireAuth,
+  Validators.ValidateIdQueryParam,
   asyncHandler(async (req, res) => {
     const userId = req.authInfo.user.id;
     const folderId = req.params.id;
-
-    const { isValid, error } = Validators.isFolderIdValid(folderId);
-    if (!isValid) {
-      return ApiResponses.BAD_REQUEST(res, error);
-    }
 
     const folder = await FolderController.getFolder(folderId, userId);
 
@@ -39,14 +35,10 @@ router.get(
 router.post(
   "/",
   RequireAuth,
+  Validators.ValidateCreateFolderData,
   asyncHandler(async (req, res) => {
     const createData = req.body;
     createData.UserId = req.authInfo.user.id;
-
-    const { isValid, error } = Validators.isCreateFolderDataValid(createData); //TODO add test
-    if (!isValid) {
-      return ApiResponses.BAD_REQUEST(res, error);
-    }
 
     const folder = await FolderController.createFolder(createData);
 
@@ -57,20 +49,12 @@ router.post(
 router.put(
   "/:id",
   RequireAuth,
+  Validators.ValidateIdQueryParam,
+  Validators.ValidateUpdateFolderData,
   asyncHandler(async (req, res) => {
     const userId = req.authInfo.user.id;
     const folderId = req.params.id;
     const updateData = req.body;
-
-    let validCheck = Validators.isFolderIdValid(folderId);
-    if (!validCheck.isValid) {
-      return ApiResponses.BAD_REQUEST(res, validCheck.error);
-    }
-
-    validCheck = Validators.isUpdateFolderDataValid(updateData);
-    if (!validCheck.isValid) {
-      return ApiResponses.BAD_REQUEST(res, validCheck.error);
-    }
 
     const [changedRows] = await FolderController.updateFolder(
       folderId,
@@ -86,14 +70,10 @@ router.put(
 router.delete(
   "/:id",
   RequireAuth,
+  Validators.ValidateIdQueryParam,
   asyncHandler(async (req, res) => {
     const userId = req.authInfo.user.id;
     const folderId = req.params.id;
-
-    let validCheck = Validators.isFolderIdValid(folderId); //TODO add test
-    if (!validCheck.isValid) {
-      return ApiResponses.BAD_REQUEST(res, validCheck.error);
-    }
 
     await FolderController.deleteFolder(folderId, userId);
 

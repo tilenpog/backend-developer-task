@@ -216,7 +216,10 @@ describe("UPDATE /notes", () => {
   });
 
   it("should validate data", async () => {
-    const res = await request(app).put("/notes/asd").set("Authorization", adminAuth).send({ name: "New Note" });
+    const res = await request(app)
+      .put("/notes/asd")
+      .set("Authorization", adminAuth)
+      .send({ name: "New Note" });
     expect(res.status).toEqual(400);
 
     const validNoteData = {
@@ -246,7 +249,7 @@ describe("UPDATE /notes", () => {
       noteDataInvalidVisibility,
       noteDataInvalidFolderId,
       noteDataInvalidItems,
-      noteDataInvalidItemFormat
+      noteDataInvalidItemFormat,
     ];
 
     for (const invalidData of invalidDatas) {
@@ -295,6 +298,14 @@ describe("DELETE /notes", () => {
     res = await request(app).delete("/notes/1");
 
     expect(res.status).toEqual(401);
+  });
+
+  it("should validate data", async () => {
+    const res = await request(app)
+      .delete("/notes/asdf")
+      .set("Authorization", adminAuth);
+
+    expect(res.status).toEqual(400);
   });
 
   it("should not delete other users notes", async () => {
