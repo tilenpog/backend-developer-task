@@ -114,19 +114,6 @@ NoteListItem.belongsTo(Note);
 Note.hasOne(NoteTextItem, { onDelete: "cascade" });
 NoteTextItem.belongsTo(Note);
 
-// Note.addScope("canView", {
-//   include: {
-//     model: Folder,
-//     where: { UserId: Sequelize.col("Note.UserId") },
-//   },
-//   where: {
-//     [Sequelize.Op.or]: [
-//       { visibility: "public" },
-//       { "$Folder.UserId$": Sequelize.col("userId") },
-//     ],
-//   },
-// });
-
 module.exports = {
   User,
   Folder,

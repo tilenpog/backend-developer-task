@@ -7,8 +7,6 @@ const {
   NoteTextItem,
 } = require("../src/models/model");
 
-// seedDb(true);
-
 async function seedDb(loggingEnabled = false) {
   if (loggingEnabled) console.log("Started seeding database.");
   await User.sync({ force: true });

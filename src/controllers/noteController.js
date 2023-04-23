@@ -1,4 +1,3 @@
-const Sequelize = require("sequelize");
 const { Note, Folder, NoteListItem, NoteTextItem } = require("../models/model");
 
 const getNotes = async (userId, paginationData, orderData) => {
@@ -68,7 +67,7 @@ const updateNote = async (noteId, data, userId) => {
   if (!note || note.Folder.UserId !== userId) {
     return false;
   }
-  //TODO: check if folder is okay, owned by user
+
   const { items, ...noteData } = data;
 
   await note.update(noteData);

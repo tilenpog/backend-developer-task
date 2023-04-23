@@ -283,6 +283,21 @@ describe("UPDATE /notes", () => {
 
     expect(res.body).toEqual(expect.objectContaining({ name: "updated note" }));
   });
+
+  it("should not update notes owned by another user", async () => {
+    let res = await request(app)
+      .put("/notes/5")
+      .set("Authorization", adminAuth)
+      .send({ name: "updated note" });
+
+    expect(res.status).toEqual(500);
+
+    res = await request(app).get("/notes/5").set("Authorization", adminAuth);
+
+    expect(res.body).not.toEqual(
+      expect.objectContaining({ name: "updated note" })
+    );
+  });
 });
 
 describe("DELETE /notes", () => {
