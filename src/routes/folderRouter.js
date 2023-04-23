@@ -3,7 +3,7 @@ const asyncHandler = require("express-async-handler");
 const ApiResponses = require("../utils/apiResponses");
 const { RequireAuth } = require("../middleware/authorization");
 const FolderController = require("../controllers/folderController");
-const { getNotesInFolder } = require("../controllers/noteController");
+const Validators = require("../utils/validators");
 
 router.get(
   "/",
@@ -24,6 +24,11 @@ router.get(
     const userId = req.authInfo.user.id;
     const folderId = req.params.id;
 
+    const {isValid, error} = Validators.isFolderIdValid(folderId);
+    if (!isValid) {
+      return ApiResponses.BAD_REQUEST(res, error);
+    }
+
     const folder = await FolderController.getFolder(folderId, userId);
 
     if (!folder) return ApiResponses.NOT_FOUND(res);
@@ -37,7 +42,11 @@ router.post(
   asyncHandler(async (req, res) => {
     const createData = req.body;
     createData.UserId = req.authInfo.user.id;
-    //TODO: validate createData
+
+    const {isValid, error} = Validators.isCreateFolderDataValid(createData); //TODO add test
+    if (!isValid) {
+      return ApiResponses.BAD_REQUEST(res, error);
+    }
 
     const folder = await FolderController.createFolder(createData);
 
@@ -52,7 +61,16 @@ router.put(
     const userId = req.authInfo.user.id;
     const folderId = req.params.id;
     const updateData = req.body;
-    //TODO: validate updateData
+
+    let validCheck = Validators.isFolderIdValid(folderId);
+    if (!validCheck.isValid) {
+      return ApiResponses.BAD_REQUEST(res, validCheck.error);
+    }
+
+    validCheck = Validators.isUpdateFolderDataValid(updateData);
+    if (!validCheck.isValid) {
+      return ApiResponses.BAD_REQUEST(res, validCheck.error);
+    }
 
     const [changedRows] = await FolderController.updateFolder(
       folderId,
@@ -71,6 +89,11 @@ router.delete(
   asyncHandler(async (req, res) => {
     const userId = req.authInfo.user.id;
     const folderId = req.params.id;
+
+    let validCheck = Validators.isFolderIdValid(folderId); //TODO add test
+    if (!validCheck.isValid) {
+      return ApiResponses.BAD_REQUEST(res, validCheck.error);
+    }
 
     await FolderController.deleteFolder(folderId, userId);
 

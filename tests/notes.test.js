@@ -2,6 +2,9 @@ const request = require("supertest");
 const app = require("../src/app");
 const { seedDb } = require("../scripts/seedDb");
 
+const adminAuth = "Basic YWRtaW46YWRtaW4=";  // 'admin:admin' base64-encoded
+const userAuth = "Basic dXNlcjp1c2Vy="; // 'user:user' base64-encoded
+
 describe("GET /notes", () => {
   beforeAll(async () => {
     await seedDb();
@@ -10,7 +13,7 @@ describe("GET /notes", () => {
   it("should return all notes", async () => {
     const res = await request(app)
       .get("/notes")
-      .set("Authorization", "Basic YWRtaW46YWRtaW4="); // 'admin:admin' base64-encoded
+      .set("Authorization", adminAuth);
 
     expect(res.status).toEqual(200);
     expect(res.body.allNotesCount).toEqual(5);
@@ -26,7 +29,7 @@ describe("GET /notes", () => {
   it("should paginate notes", async () => {
     const res = await request(app)
       .get("/notes?page=2&pageSize=2")
-      .set("Authorization", "Basic YWRtaW46YWRtaW4="); // 'admin:admin' base64-encoded
+      .set("Authorization", adminAuth);
 
     expect(res.status).toEqual(200);
     expect(res.body.allNotesCount).toEqual(5);
@@ -42,7 +45,7 @@ describe("GET /notes", () => {
   it("should sort notes", async () => {
     let res = await request(app)
       .get("/notes?sort=name&order=desc")
-      .set("Authorization", "Basic YWRtaW46YWRtaW4="); // 'admin:admin' base64-encoded
+      .set("Authorization", adminAuth);
 
     expect(res.status).toEqual(200);
     expect(res.body.notes[0].name).toEqual("Note 6");
@@ -50,7 +53,7 @@ describe("GET /notes", () => {
 
     res = await request(app)
       .get("/notes?sort=name&order=asc")
-      .set("Authorization", "Basic YWRtaW46YWRtaW4="); // 'admin:admin' base64-encoded
+      .set("Authorization", adminAuth);
 
     expect(res.status).toEqual(200);
     expect(res.body.notes[0].name).toEqual("Note 1");
@@ -68,7 +71,7 @@ describe("GET /notes", () => {
   it("should return note by id", async () => {
     const res = await request(app)
       .get("/notes/1")
-      .set("Authorization", "Basic YWRtaW46YWRtaW4="); // 'admin:admin' base64-encoded
+      .set("Authorization", adminAuth);
 
     expect(res.status).toEqual(200);
     expect(res.body).toEqual(
@@ -79,7 +82,7 @@ describe("GET /notes", () => {
   it("should return 404 if folder not found", async () => {
     const res = await request(app)
       .get("/notes/404")
-      .set("Authorization", "Basic YWRtaW46YWRtaW4="); // 'admin:admin' base64-encoded
+      .set("Authorization", adminAuth);
 
     expect(res.status).toEqual(404);
   });
@@ -91,7 +94,7 @@ describe("GET /notes", () => {
 
     res = await request(app)
       .get("/notes/4")
-      .set("Authorization", "Basic YWRtaW46YWRtaW4="); // 'admin:admin' base64-encoded
+      .set("Authorization", adminAuth);
 
     expect(res.status).toEqual(404);
   });
@@ -119,7 +122,7 @@ describe("CREATE /notes", () => {
   it("should create a new note", async () => {
     let res = await request(app)
       .post("/notes")
-      .set("Authorization", "Basic YWRtaW46YWRtaW4=") // 'admin:admin' base64-encoded
+      .set("Authorization", adminAuth)
       .send(createNoteObject);
 
     expect(res.status).toEqual(201);
@@ -127,18 +130,18 @@ describe("CREATE /notes", () => {
     const noteId = res.body;
     res = await request(app)
       .get(`/notes/${noteId}`)
-      .set("Authorization", "Basic YWRtaW46YWRtaW4="); // 'admin:admin' base64-encoded
+      .set("Authorization", adminAuth);
 
     expect(res.body).toEqual(
       expect.objectContaining({ name: createNoteObject.name })
     );
   });
 
-  //TODO data validation
+  //TODO data validation test
   // it('should return 400 if data is missing', async () => {
   //     const res = await request(app)
   //     .post('/notes')
-  //     .set('Authorization', 'Basic YWRtaW46YWRtaW4=') // 'admin:admin' base64-encoded
+  //     .set('Authorization', 'Basic YWRtaW46YWRtaW4=')
   //     .send({ name: 'New note'});
 
   //     expect(res.status).toEqual(400);
@@ -159,7 +162,7 @@ describe("UPDATE /folders", () => {
   it("should return 404 if note not found", async () => {
     const res = await request(app)
       .put("/note/404")
-      .set("Authorization", "Basic YWRtaW46YWRtaW4=") // 'admin:admin' base64-encoded
+      .set("Authorization", adminAuth)
       .send({ name: "updated note" });
 
     expect(res.status).toEqual(404);
@@ -168,14 +171,14 @@ describe("UPDATE /folders", () => {
   it("should update note", async () => {
     let res = await request(app)
       .put("/notes/1")
-      .set("Authorization", "Basic YWRtaW46YWRtaW4=") // 'admin:admin' base64-encoded
+      .set("Authorization", adminAuth)
       .send({ name: "updated note" });
 
     expect(res.status).toEqual(204);
 
     res = await request(app)
       .get("/notes/1")
-      .set("Authorization", "Basic YWRtaW46YWRtaW4="); // 'admin:admin' base64-encoded
+      .set("Authorization", adminAuth);
 
     expect(res.body).toEqual(expect.objectContaining({ name: "updated note" }));
   });
@@ -199,13 +202,13 @@ describe("DELETE /notes", () => {
   it("should not delete other users notes", async () => {
     let res = await request(app)
       .delete("/notes/4")
-      .set("Authorization", "Basic YWRtaW46YWRtaW4="); // 'admin:admin' base64-encoded
+      .set("Authorization", adminAuth);
 
     expect(res.status).toEqual(204);
 
     res = await request(app)
       .get("/notes/4")
-      .set("Authorization", "Basic dXNlcjp1c2Vy="); // 'user:user' base64-encoded
+      .set("Authorization", userAuth);
 
     expect(res.status).toEqual(200);
   });
@@ -213,13 +216,13 @@ describe("DELETE /notes", () => {
   it("should delete note", async () => {
     let res = await request(app)
       .delete("/notes/1")
-      .set("Authorization", "Basic YWRtaW46YWRtaW4="); // 'admin:admin' base64-encoded
+      .set("Authorization", adminAuth);
 
     expect(res.status).toEqual(204);
 
     res = await request(app)
       .get("/notes/1")
-      .set("Authorization", "Basic YWRtaW46YWRtaW4="); // 'admin:admin' base64-encoded
+      .set("Authorization", adminAuth);
 
     expect(res.status).toEqual(404);
   });
@@ -227,13 +230,13 @@ describe("DELETE /notes", () => {
   it("should delete all notes", async () => {
     let res = await request(app)
       .delete("/notes")
-      .set("Authorization", "Basic YWRtaW46YWRtaW4="); // 'admin:admin' base64-encoded
+      .set("Authorization", adminAuth);
 
     expect(res.status).toEqual(204);
 
     res = await request(app)
       .get("/notes")
-      .set("Authorization", "Basic YWRtaW46YWRtaW4="); // 'admin:admin' base64-encoded
+      .set("Authorization", adminAuth);
 
     expect(res.body.notes.every((note) => note.Folder.UserId !== 1));
     expect(res.body.allNotesCount).toEqual(2);

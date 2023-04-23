@@ -132,13 +132,4 @@ router.delete(
   })
 );
 
-//TODO - add routes for:
-//Get all notes for a folder
-
-//Update a note
-
-//Edit note items - think about how to do this
-
-//Implement pagination, sorting, filtering
-
 module.exports = router;

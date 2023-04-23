@@ -17,12 +17,10 @@ const updateFolder = (folderId, data, userId) => {
 };
 
 const deleteFolder = (folderId, userId) => {
-  //TODO: should also delete notes in folder
   return Folder.destroy({ where: { id: folderId, UserId: userId } });
 };
 
 const deleteAllFolders = (userId) => {
-  //TODO: should also delete notes in folder
   return Folder.destroy({ where: { UserId: userId } });
 };
 

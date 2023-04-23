@@ -11,7 +11,7 @@ User.init(
     username: {
       type: Sequelize.STRING,
       allowNull: false,
-      //TODO: add unique constraint
+      unique: true,
     },
     password: {
       type: Sequelize.STRING,
