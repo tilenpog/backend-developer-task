@@ -13,7 +13,7 @@ describe("GET /folders", () => {
   it("should return all folders", async () => {
     const res = await request(app)
       .get("/folders")
-      .set("Authorization", adminAuth); 
+      .set("Authorization", adminAuth);
 
     expect(res.status).toEqual(200);
     expect(res.body).toEqual(
@@ -33,7 +33,7 @@ describe("GET /folders", () => {
   it("should return folder by id", async () => {
     const res = await request(app)
       .get("/folders/1")
-      .set("Authorization", adminAuth); 
+      .set("Authorization", adminAuth);
 
     expect(res.status).toEqual(200);
     expect(res.body).toEqual(
@@ -41,10 +41,10 @@ describe("GET /folders", () => {
     );
   });
 
-  it ("should validate folder id", async () => {
+  it("should validate folder id", async () => {
     const res = await request(app)
-    .get("/folders/abc")
-    .set("Authorization", adminAuth);
+      .get("/folders/abc")
+      .set("Authorization", adminAuth);
 
     expect(res.status).toEqual(400);
   });
@@ -52,7 +52,7 @@ describe("GET /folders", () => {
   it("should return 404 if folder not found", async () => {
     const res = await request(app)
       .get("/folders/4")
-      .set("Authorization", adminAuth); 
+      .set("Authorization", adminAuth);
 
     expect(res.status).toEqual(404);
   });
@@ -74,7 +74,7 @@ describe("CREATE /folders", () => {
   it("should create a new folder", async () => {
     const res = await request(app)
       .post("/folders")
-      .set("Authorization", adminAuth) 
+      .set("Authorization", adminAuth)
       .send({ name: "New Folder" });
 
     expect(res.status).toEqual(201);
@@ -83,26 +83,24 @@ describe("CREATE /folders", () => {
     );
   });
 
-  it('should validate data', async () => {
-      let res = await request(app)
-      .post('/folders')
-      .set('Authorization', adminAuth) 
-      .send({ title: 'asd'}); //wrong field name
+  it("should validate data", async () => {
+    let res = await request(app)
+      .post("/folders")
+      .set("Authorization", adminAuth)
+      .send({ title: "asd" }); //wrong field name
 
-      expect(res.status).toEqual(400);
+    expect(res.status).toEqual(400);
 
-      res = await request(app)
-      .post('/folders')
-      .set('Authorization', adminAuth) 
-      .send({ name: ''}); //empty name
+    res = await request(app)
+      .post("/folders")
+      .set("Authorization", adminAuth)
+      .send({ name: "" }); //empty name
 
-      expect(res.status).toEqual(400);
+    expect(res.status).toEqual(400);
 
-      res = await request(app)
-      .post('/folders')
-      .set('Authorization', adminAuth) //no body
+    res = await request(app).post("/folders").set("Authorization", adminAuth); //no body
 
-      expect(res.status).toEqual(400);
+    expect(res.status).toEqual(400);
   });
 });
 
@@ -122,52 +120,48 @@ describe("UPDATE /folders", () => {
   it("should return 400 if folder not found", async () => {
     const res = await request(app)
       .put("/folders/4")
-      .set("Authorization", adminAuth) 
+      .set("Authorization", adminAuth)
       .send({ name: "updated folder" });
 
     expect(res.status).toEqual(400);
   });
 
-  it('should validate data', async () => {
+  it("should validate data", async () => {
     let res = await request(app)
-    .put('/folders/1')
-    .set('Authorization', adminAuth) 
-    .send({ title: 'asd'}); //wrong field name
+      .put("/folders/1")
+      .set("Authorization", adminAuth)
+      .send({ title: "asd" }); //wrong field name
 
     expect(res.status).toEqual(400);
 
     res = await request(app)
-    .put('/folders/1')
-    .set('Authorization', adminAuth) 
-    .send({ name: ''}); //empty name
+      .put("/folders/1")
+      .set("Authorization", adminAuth)
+      .send({ name: "" }); //empty name
+
+    expect(res.status).toEqual(400);
+
+    res = await request(app).put("/folders/1").set("Authorization", adminAuth); //no body
 
     expect(res.status).toEqual(400);
 
     res = await request(app)
-    .put('/folders/1')
-    .set('Authorization', adminAuth) //no body
+      .put("/folders/asd") //wrong id
+      .set("Authorization", adminAuth)
+      .send({ name: "updated folder" });
 
     expect(res.status).toEqual(400);
-
-    res = await request(app)
-    .put('/folders/asd') //wrong id
-    .set('Authorization', adminAuth)
-    .send({ name: 'updated folder'});
-
-    expect(res.status).toEqual(400);
-});
+  });
 
   it("should update folder", async () => {
     let res = await request(app)
       .put("/folders/1")
-      .set("Authorization", adminAuth) 
+      .set("Authorization", adminAuth)
       .send({ name: "updated folder" });
 
     expect(res.status).toEqual(204);
 
-    res = await request(app)
-      .get("/folders/1")
-      .set("Authorization", adminAuth); 
+    res = await request(app).get("/folders/1").set("Authorization", adminAuth);
 
     expect(res.body).toEqual(
       expect.objectContaining({ name: "updated folder", UserId: 1 })
@@ -190,10 +184,10 @@ describe("DELETE /folders", () => {
     expect(res.status).toEqual(401);
   });
 
-  it ("should validate data", async () => {
+  it("should validate data", async () => {
     const res = await request(app)
-    .delete("/folders/abc")
-    .set("Authorization", adminAuth);
+      .delete("/folders/abc")
+      .set("Authorization", adminAuth);
 
     expect(res.status).toEqual(400);
   });
@@ -201,13 +195,11 @@ describe("DELETE /folders", () => {
   it("should not delete other users folders", async () => {
     let res = await request(app)
       .delete("/folders/4")
-      .set("Authorization", adminAuth); 
+      .set("Authorization", adminAuth);
 
     expect(res.status).toEqual(204);
 
-    res = await request(app)
-      .get("/folders/4")
-      .set("Authorization", userAuth);
+    res = await request(app).get("/folders/4").set("Authorization", userAuth);
 
     expect(res.status).toEqual(200);
   });
@@ -215,13 +207,11 @@ describe("DELETE /folders", () => {
   it("should delete folder", async () => {
     let res = await request(app)
       .delete("/folders/1")
-      .set("Authorization", adminAuth); 
+      .set("Authorization", adminAuth);
 
     expect(res.status).toEqual(204);
 
-    res = await request(app)
-      .get("/folders/1")
-      .set("Authorization", adminAuth); 
+    res = await request(app).get("/folders/1").set("Authorization", adminAuth);
 
     expect(res.status).toEqual(404);
   });
@@ -229,13 +219,11 @@ describe("DELETE /folders", () => {
   it("should delete all folders", async () => {
     let res = await request(app)
       .delete("/folders")
-      .set("Authorization", adminAuth); 
+      .set("Authorization", adminAuth);
 
     expect(res.status).toEqual(204);
 
-    res = await request(app)
-      .get("/folders")
-      .set("Authorization", adminAuth); 
+    res = await request(app).get("/folders").set("Authorization", adminAuth);
 
     expect(res.body.length).toEqual(0);
   });

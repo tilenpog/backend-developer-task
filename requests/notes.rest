@@ -21,7 +21,7 @@ Authorization: Basic admin:admin
 Content-Type: application/json
 
 {
-    "title": "Note title",
+    "name": "Note title",
     "type": "list",
     "visibility": "public",
     "folderId": 2,

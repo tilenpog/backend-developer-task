@@ -24,7 +24,7 @@ router.get(
     const userId = req.authInfo.user.id;
     const folderId = req.params.id;
 
-    const {isValid, error} = Validators.isFolderIdValid(folderId);
+    const { isValid, error } = Validators.isFolderIdValid(folderId);
     if (!isValid) {
       return ApiResponses.BAD_REQUEST(res, error);
     }
@@ -43,7 +43,7 @@ router.post(
     const createData = req.body;
     createData.UserId = req.authInfo.user.id;
 
-    const {isValid, error} = Validators.isCreateFolderDataValid(createData); //TODO add test
+    const { isValid, error } = Validators.isCreateFolderDataValid(createData); //TODO add test
     if (!isValid) {
       return ApiResponses.BAD_REQUEST(res, error);
     }

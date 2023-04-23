@@ -21,7 +21,7 @@ Authorization: Basic admin:admin
 Content-Type: application/json
 
 {
-    "title": "Updated Folder"
+    "name": "Updated Folder"
 }
 
 ###Delete folder

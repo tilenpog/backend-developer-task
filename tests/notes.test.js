@@ -2,7 +2,7 @@ const request = require("supertest");
 const app = require("../src/app");
 const { seedDb } = require("../scripts/seedDb");
 
-const adminAuth = "Basic YWRtaW46YWRtaW4=";  // 'admin:admin' base64-encoded
+const adminAuth = "Basic YWRtaW46YWRtaW4="; // 'admin:admin' base64-encoded
 const userAuth = "Basic dXNlcjp1c2Vy="; // 'user:user' base64-encoded
 
 describe("GET /notes", () => {
@@ -79,6 +79,14 @@ describe("GET /notes", () => {
     );
   });
 
+  it("should validate note id", async () => {
+    const res = await request(app)
+      .get("/notes/invalid")
+      .set("Authorization", adminAuth);
+
+    expect(res.status).toEqual(400);
+  });
+
   it("should return 404 if folder not found", async () => {
     const res = await request(app)
       .get("/notes/404")
@@ -92,16 +100,14 @@ describe("GET /notes", () => {
 
     expect(res.status).toEqual(404);
 
-    res = await request(app)
-      .get("/notes/4")
-      .set("Authorization", adminAuth);
+    res = await request(app).get("/notes/4").set("Authorization", adminAuth);
 
     expect(res.status).toEqual(404);
   });
 });
 
 describe("CREATE /notes", () => {
-  let createNoteObject = {
+  const createNoteObject = {
     name: "Note title",
     type: "list",
     visibility: "public",
@@ -137,26 +143,120 @@ describe("CREATE /notes", () => {
     );
   });
 
-  //TODO data validation test
-  // it('should return 400 if data is missing', async () => {
-  //     const res = await request(app)
-  //     .post('/notes')
-  //     .set('Authorization', 'Basic YWRtaW46YWRtaW4=')
-  //     .send({ name: 'New note'});
+  it("should validate data", async () => {
+    const validNoteData = createNoteObject;
 
-  //     expect(res.status).toEqual(400);
-  // });
+    const noteDataWithoutName = { ...validNoteData };
+    delete noteDataWithoutName.name;
+
+    const noteDataInvalidName = { ...validNoteData, name: "" };
+
+    const noteDataWithoutType = { ...validNoteData };
+    delete noteDataWithoutType.type;
+
+    const noteDataInvalidType = { ...validNoteData, type: "image" };
+
+    const noteDataWithoutVisibility = { ...validNoteData };
+    delete noteDataWithoutVisibility.visibility;
+
+    const noteDataInvalidVisibility = {
+      ...validNoteData,
+      visibility: "shared",
+    };
+
+    const noteDataWithoutFolderId = { ...validNoteData };
+    delete noteDataWithoutFolderId.folderId;
+
+    const noteDataInvalidFolderId = { ...validNoteData, folderId: "text" };
+
+    const noteDataWithoutItems = { ...validNoteData };
+    delete noteDataWithoutItems.items;
+
+    const noteDataInvalidItems = { ...validNoteData, items: "text" };
+
+    const noteDataInvalidItemFormat = {
+      ...validNoteData,
+      items: [{ content: "body 1" }],
+    };
+
+    const invalidDatas = [
+      noteDataWithoutName,
+      noteDataInvalidName,
+      noteDataWithoutType,
+      noteDataInvalidType,
+      noteDataWithoutVisibility,
+      noteDataInvalidVisibility,
+      noteDataWithoutFolderId,
+      noteDataInvalidFolderId,
+      noteDataWithoutItems,
+      noteDataInvalidItems,
+      noteDataInvalidItemFormat,
+    ];
+
+    for (const invalidData of invalidDatas) {
+      const res = await request(app)
+        .post("/notes")
+        .set("Authorization", adminAuth)
+        .send(invalidData);
+
+      expect(res.status).toEqual(400);
+    }
+  });
 });
 
-describe("UPDATE /folders", () => {
+describe("UPDATE /notes", () => {
   beforeEach(async () => {
     await seedDb();
   });
 
   it("should require auth", async () => {
-    const res = await request(app).put("/notes/1").send({ name: "New Folder" });
+    const res = await request(app).put("/notes/1").send({ name: "New Note" });
 
     expect(res.status).toEqual(401);
+  });
+
+  it("should validate data", async () => {
+    const res = await request(app).put("/notes/asd").set("Authorization", adminAuth).send({ name: "New Note" });
+    expect(res.status).toEqual(400);
+
+    const validNoteData = {
+      name: "Note title",
+      type: "list",
+      visibility: "public",
+      folderId: 2,
+      items: [{ body: "body 1" }, { body: "body 2" }],
+    };
+
+    const noteDataInvalidName = { ...validNoteData, name: "" };
+    const noteDataInvalidType = { ...validNoteData, type: "image" };
+    const noteDataInvalidVisibility = {
+      ...validNoteData,
+      visibility: "shared",
+    };
+    const noteDataInvalidFolderId = { ...validNoteData, folderId: "text" };
+    const noteDataInvalidItems = { ...validNoteData, items: "text" };
+    const noteDataInvalidItemFormat = {
+      ...validNoteData,
+      items: [{ content: "body 1" }],
+    };
+
+    const invalidDatas = [
+      noteDataInvalidName,
+      noteDataInvalidType,
+      noteDataInvalidVisibility,
+      noteDataInvalidFolderId,
+      noteDataInvalidItems,
+      noteDataInvalidItemFormat
+    ];
+
+    for (const invalidData of invalidDatas) {
+      const res = await request(app)
+        .put("/notes/1")
+        .set("Authorization", adminAuth)
+        .send(invalidData);
+
+      expect(res.status).toEqual(400);
+    }
   });
 
   it("should return 404 if note not found", async () => {
@@ -176,9 +276,7 @@ describe("UPDATE /folders", () => {
 
     expect(res.status).toEqual(204);
 
-    res = await request(app)
-      .get("/notes/1")
-      .set("Authorization", adminAuth);
+    res = await request(app).get("/notes/1").set("Authorization", adminAuth);
 
     expect(res.body).toEqual(expect.objectContaining({ name: "updated note" }));
   });
@@ -206,9 +304,7 @@ describe("DELETE /notes", () => {
 
     expect(res.status).toEqual(204);
 
-    res = await request(app)
-      .get("/notes/4")
-      .set("Authorization", userAuth);
+    res = await request(app).get("/notes/4").set("Authorization", userAuth);
 
     expect(res.status).toEqual(200);
   });
@@ -220,9 +316,7 @@ describe("DELETE /notes", () => {
 
     expect(res.status).toEqual(204);
 
-    res = await request(app)
-      .get("/notes/1")
-      .set("Authorization", adminAuth);
+    res = await request(app).get("/notes/1").set("Authorization", adminAuth);
 
     expect(res.status).toEqual(404);
   });
@@ -234,9 +328,7 @@ describe("DELETE /notes", () => {
 
     expect(res.status).toEqual(204);
 
-    res = await request(app)
-      .get("/notes")
-      .set("Authorization", adminAuth);
+    res = await request(app).get("/notes").set("Authorization", adminAuth);
 
     expect(res.body.notes.every((note) => note.Folder.UserId !== 1));
     expect(res.body.allNotesCount).toEqual(2);
