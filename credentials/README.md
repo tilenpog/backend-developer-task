@@ -1,13 +1,13 @@
 # Credentials
 
-username: admin
-password: admin
+Two users are added by default. Endpoints are using HTTP basic authentication. 
 
-username: user
-password: user
+    username: admin
+    password: admin
+    Authorization: Basic YWRtaW46YWRtaW4= // 'admin:admin' base64-encoded
 
-username: emptyFolders
-password: password
+    username: user
+    password: user
+    Authorization: Basic dXNlcjp1c2Vy= // 'user:user' base64-encoded
 
-username: noFolders
-password: password
+
